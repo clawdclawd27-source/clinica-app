@@ -1,0 +1,52 @@
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common';
+import { Permission } from '../common/decorators/permission.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/role.enum';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { PermissionGuard } from '../common/guards/permission.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { UpdateAgendaSettingsDto, UpdateClinicProfileDto, UpdateNotificationSettingsDto } from './dto';
+import { SettingsService } from './settings.service';
+
+@Controller('settings')
+@UseGuards(JwtAuthGuard, RolesGuard, PermissionGuard)
+@Roles(Role.ADMIN, Role.OWNER)
+export class SettingsController {
+  constructor(private settingsService: SettingsService) {}
+
+  @Get('clinic-profile')
+  @Permission('settings', 'view')
+  getClinicProfile() {
+    return this.settingsService.getClinicProfile();
+  }
+
+  @Put('clinic-profile')
+  @Permission('settings', 'edit')
+  updateClinicProfile(@Body() dto: UpdateClinicProfileDto) {
+    return this.settingsService.updateClinicProfile(dto);
+  }
+
+  @Get('agenda')
+  @Permission('settings', 'view')
+  getAgenda() {
+    return this.settingsService.getAgendaSettings();
+  }
+
+  @Put('agenda')
+  @Permission('settings', 'edit')
+  updateAgenda(@Body() dto: UpdateAgendaSettingsDto) {
+    return this.settingsService.updateAgendaSettings(dto);
+  }
+
+  @Get('notifications')
+  @Permission('settings', 'view')
+  getNotifications() {
+    return this.settingsService.getNotificationSettings();
+  }
+
+  @Put('notifications')
+  @Permission('settings', 'edit')
+  updateNotifications(@Body() dto: UpdateNotificationSettingsDto) {
+    return this.settingsService.updateNotificationSettings(dto);
+  }
+}
